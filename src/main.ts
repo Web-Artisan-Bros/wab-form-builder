@@ -5,6 +5,10 @@ import PrimeVue from 'primevue/config'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
+import MultiSelect from 'primevue/multiselect';
+import Chips from 'primevue/chips';
+import Dropdown from 'primevue/dropdown';
+
 
 import 'primeflex/primeflex.css'
 import 'primeflex/themes/arya-blue.css'
@@ -20,4 +24,7 @@ createApp(App)
   .component('Button', Button)
   .component('InputText', InputText)
   .component('Password', Password)
+  .component('MultiSelect', MultiSelect)
+  .component('Chips', Chips)
+  .component('Dropdown', Dropdown)
   .mount('#app')

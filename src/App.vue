@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import FormBuilder from '@/components/FormBuilder.vue'
+import FormBuilder from '@/components/FormBuilder'
 import type { FormSchema } from '@/@types/FormBuilder'
-import { string } from 'yup'
+import { array, string } from 'yup'
 
 const formSchema: FormSchema = {
   // noWrapper: true,
@@ -20,8 +20,8 @@ const formSchema: FormSchema = {
     class: 'flex flex-column gap-2'
   },
   groupProps: {
-    class: 'grid'
-    // as: 'div'
+    class: ['grid'],
+    as: 'fieldset'
   },
   colProps: {
     class: 'md:col-6 col-12'
@@ -49,7 +49,7 @@ const formSchema: FormSchema = {
   fields: [
     {
       name: 'name',
-      as: 'InputText',
+      as: 'input',
       group: 'row1',
       label: 'Your Name',
       rules: string().required('Name is required'),
@@ -62,7 +62,7 @@ const formSchema: FormSchema = {
       label: 'Your Email',
       name: 'email',
       group: 'row1',
-      as: 'InputText',
+      as: 'input',
       rules: string().email().required(),
       props: {
         placeholder: 'Your Email'
@@ -71,22 +71,68 @@ const formSchema: FormSchema = {
     {
       label: 'Your Password',
       name: 'password',
-      as: 'Password',
+      as: 'input',
       rules: string().required(),
       props: {
         placeholder: 'Enter password',
-        feedback: false
-        // type: 'password'
+        feedback: false,
+        type: 'password'
+      }
+    },
+    {
+      label: 'Genere',
+      name: 'gender',
+      as: 'select',
+      rules: string().required(),
+      options: [
+        { value: '', label: '-' },
+        { value: 'm', label: 'Maschio' },
+        { value: 'f', label: 'Femmina' },
+        { value: 'o', label: 'Altro' }
+      ],
+      props: {
+        placeholder: 'Come ti definisci?'
+      }
+    },
+    {
+      label: 'Città',
+      name: 'city',
+      as: 'Dropdown',
+      props: {
+        placeholder: 'Scegli una città?',
+        optionLabel: 'label',
+        optionValue: 'value',
+        options: [
+          { label: 'Berlin', value: 'Berlin' },
+          { label: 'Frankfurt', value: 'Frankfurt' },
+          { label: 'Hamburg', value: 'Hamburg' },
+          { label: 'Munich', value: 'Munich' }
+        ]
       }
     }
   ]
+}
+
+function onErrors (errors: any) {
+  // console.log(errors)
 }
 </script>
 
 <template>
   <div class="grid border m-6">
     <div class="col">
-      <FormBuilder :schema="formSchema"></FormBuilder>
+      <FormBuilder :schema="formSchema" @errors="onErrors">
+        <template #field_password="item">
+          <input type="password" v-bind="item.field"/>
+          {{ item.errors }}
+        </template>
+
+        <template #buttons>
+          <button type="reset">Annulla</button>
+          <button type="submit">Invia</button>
+        </template>
+
+      </FormBuilder>
     </div>
   </div>
 </template>

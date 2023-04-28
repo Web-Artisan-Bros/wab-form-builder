@@ -2,27 +2,40 @@ export interface ElementProps {
   [key: string]: any;
   
   as?: string;
-  class?: any;
+  class?: ((ctx: { fieldError: string | undefined }) => any) | string | string[] | Record<string, boolean>;
   style?: any;
 }
 
 export type FieldLabelPosition = 'before' | 'after';
+export type ElementPropKey = 'group' | 'col' | 'wrapper' | 'label' | 'field' | 'error';
+export type ElementPropKeyFull =
+  'groupProps'
+  | 'colProps'
+  | 'wrapperProps'
+  | 'labelProps'
+  | 'fieldProps'
+  | 'errorProps';
 
 export interface HasElementProps {
   // props of the element
   props?: ElementProps;
   
-  // props of each label tag
-  labelProps?: ElementProps;
-  
-  // props of each wrapper of input and label
-  wrapperProps?: ElementProps;
+  groupProps?: ElementProps;
   
   // props of each parent of the wrapper, usually the col
   colProps?: ElementProps
   
+  // props of each wrapper of input and label
+  wrapperProps?: ElementProps;
+  
+  // props of each label tag
+  labelProps?: ElementProps;
+  
+  fieldProps?: ElementProps;
+  
   // props of each error message
   errorProps?: ElementProps;
+  
 }
 
 export interface FieldSchema extends HasElementProps {
@@ -32,6 +45,7 @@ export interface FieldSchema extends HasElementProps {
   as: string;
   labelPosition?: FieldLabelPosition;
   rules?: any;
+  options?: any[];
   
   // name of the group this input belongs
   group?: string;
@@ -43,7 +57,7 @@ export interface GroupSchema extends HasElementProps {
   labelPosition?: FieldLabelPosition;
   as?: string;
   order?: number;
-  fieldProps?: ElementProps;
+  
 }
 
 interface GroupSchemaWithFields extends GroupSchema {
@@ -53,8 +67,6 @@ interface GroupSchemaWithFields extends GroupSchema {
 export interface FormSchema extends Omit<HasElementProps, 'props'> {
   fields: FieldSchema[];
   groups?: GroupSchema[];
-  groupProps?: ElementProps;
-  fieldProps?: ElementProps;
   labelPosition?: FieldLabelPosition;
   noWrapper?: boolean;
   noGroup?: boolean;
