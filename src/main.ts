@@ -15,6 +15,8 @@ import 'primeflex/themes/arya-blue.css'
 
 import 'primevue/resources/themes/lara-light-indigo/theme.css'
 import 'primevue/resources/primevue.min.css'
+import 'primeicons/primeicons.css';
+
 
 import './assets/main.css'
 

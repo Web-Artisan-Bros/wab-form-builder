@@ -1,9 +1,16 @@
+import type { RuleExpression } from 'vee-validate'
+
 export interface ElementProps {
   [key: string]: any;
   
-  as?: string;
-  class?: ((ctx: { fieldError: string | undefined }) => any) | string | string[] | Record<string, boolean>;
+  class?: ((field: FieldSchemaParsed) => any) | string | string[] | Record<string, boolean>;
   style?: any;
+}
+
+export interface ElementSettings<T = null> extends T {
+  props?: ElementProps;
+  as?: string;
+  avoid?: boolean;
 }
 
 export type FieldLabelPosition = 'before' | 'after';
@@ -38,39 +45,68 @@ export interface HasElementProps {
   
 }
 
-export interface FieldSchema extends HasElementProps {
+export interface FieldSchema {
   // will show a label tag before the input
   label?: string;
   name: string;
-  as: string;
-  labelPosition?: FieldLabelPosition;
-  rules?: any;
+  as: string | Record<string, any>;
   options?: any[];
+  bails?: boolean;
+  uncheckedValue?: any;
+  validateOnInput?: boolean;
+  validateOnChange?: boolean;
+  validateOnBlur?: boolean;
+  validateOnModelUpdate?: boolean;
+  modelValue?: any;
+  validateOnMount?: boolean;
+  standalone?: boolean;
+  modelModifiers?: any;
+  rules: RuleExpression<unknown>;
+  'onUpdate:modelValue'?: (e: any) => unknown;
+  keepValue?: boolean;
+  props?: ElementProps;
+  error?: string;
   
   // name of the group this input belongs
   group?: string;
+  
+  // omitting group because it will contain many fields, so I couldn't merge the settings
+  settings?: Omit<FormSchemaSettings, 'field' | 'group'>;
 }
 
-export interface GroupSchema extends HasElementProps {
+export interface FieldSchemaParsed extends FieldSchema {
+  cumulativeSettings?: FormSchemaSettings;
+}
+
+export interface GroupSchema {
   name: string;
   legend?: string
-  labelPosition?: FieldLabelPosition;
   as?: string;
   order?: number;
+  props?: ElementProps & {},
   
+  settings?: Omit<FormSchemaSettings, 'group'>;
 }
 
-interface GroupSchemaWithFields extends GroupSchema {
-  fields: FieldSchema[];
+interface GroupSchemaParsed extends GroupSchema, Omit<FormSchemaSettings, 'group'> {
+  fields: FieldSchemaParsed[];
+  cumulativeSettings?: FormSchemaSettings;
 }
 
-export interface FormSchema extends Omit<HasElementProps, 'props'> {
+export interface FormSchema {
   fields: FieldSchema[];
   groups?: GroupSchema[];
-  labelPosition?: FieldLabelPosition;
-  noWrapper?: boolean;
-  noGroup?: boolean;
-  noLabel?: boolean;
-  noCol?: boolean;
-  noErrors?: boolean,
+  settings?: FormSchemaSettings;
+  initialValues?: Record<string, any>;
+}
+
+export interface FormSchemaSettings {
+  group?: ElementSettings & {},
+  col?: ElementSettings & {},
+  wrapper?: ElementSettings & {},
+  field?: Omit<ElementSettings, 'avoid'> & Partial<FieldSchema>,
+  label?: ElementSettings & {
+    position?: FieldLabelPosition;
+  },
+  error?: ElementSettings & {}
 }

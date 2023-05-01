@@ -9,12 +9,12 @@ import type {
 } from '@/@types/FormBuilder'
 
 export default function usePropsMerger () {
-  function merge (ctx: any, ...props: any[]) {
-    const toReturn: any[] = []
+  function merge (ctx: any, ...props: any[]): any {
+    let toReturn: any = {}
     
     props.forEach(prop => {
       if (!prop) {
-        return
+        return {}
       }
       
       const cloneProp = { ...prop }
@@ -22,28 +22,58 @@ export default function usePropsMerger () {
       
       keys.forEach(key => {
         if (prop[key] instanceof Function) {
-          cloneProp[key] = prop[key](ctx)
+          cloneProp[key] = prop[key](ctx ?? {})
+          return
+        } else if (prop[key]?.constructor.name === 'Object') {
+          cloneProp[key] = merge(ctx, toReturn[key], prop[key])
           return
         }
       })
       
-      return toReturn.push(cloneProp)
+      toReturn = mergeProps(toReturn, cloneProp)
     })
     
-    return mergeProps(...toReturn)
+    return toReturn
   }
   
-  function getProps (key: ElementPropKey, schema: FormSchema, group?: GroupSchema, field?: FieldSchema, ctx?: any, ...attrs: any[]) {
-    const keyFull: ElementPropKeyFull = key + 'Props' as any
-    const globalProps: ElementProps = schema[keyFull] ?? {}
-    const groupProps: ElementProps = group ? (key === 'group' ? group.props ?? {} : group[keyFull] ?? {}) : {}
-    const fieldProps: ElementProps = field ? (key === 'field' ? field.props ?? {} : field[keyFull] ?? {}) : {}
+  function pick (obj: any, keys: string[]) {
+    const newObj: any = {}
     
-    return merge(ctx ?? {}, globalProps, groupProps, fieldProps, ...attrs)
+    keys.forEach(key => {
+      newObj[key] = obj[key]
+    })
+    
+    return newObj
+  }
+  
+  function omit (obj: any, keys: string[]) {
+    const newObj: any = {}
+    
+    Object.keys(obj).forEach(key => {
+      if (!keys.includes(key)) {
+        newObj[key] = obj[key]
+      }
+    })
+    
+    return newObj
+  }
+  
+  function distinct (list: any[], key: string) {
+    const toReturn: string[] = []
+    
+    list.forEach(item => {
+      if (!toReturn.includes(item[key]) && !!item[key]) {
+        toReturn.push(item[key])
+      }
+    })
+    
+    return toReturn
   }
   
   return {
     merge,
-    getProps
+    pick,
+    distinct,
+    omit,
   }
 }

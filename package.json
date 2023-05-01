@@ -13,6 +13,7 @@
     "@types/yup": "^0.32.0",
     "@vitejs/plugin-vue-jsx": "^3.0.1",
     "portal-vue": "^3.0.0",
+    "primeicons": "^6.0.1",
     "sass": "^1.62.1",
     "vee-validate": "^4.8.6",
     "vue": "^3.2.47",
