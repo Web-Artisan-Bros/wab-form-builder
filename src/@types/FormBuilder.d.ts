@@ -1,4 +1,5 @@
 import type { RuleExpression } from 'vee-validate'
+import { bool } from 'yup'
 
 export interface ElementProps {
   [key: string]: any;
@@ -53,20 +54,20 @@ export interface FieldSchema {
   options?: any[];
   optionLabel?: string,
   optionValue?: string,
-  bails?: boolean;
-  checkedValue?: any;
-  uncheckedValue?: any;
-  validateOnInput?: boolean;
-  validateOnChange?: boolean;
-  validateOnBlur?: boolean;
-  validateOnModelUpdate?: boolean;
+  // bails?: boolean;
+  // checkedValue?: any;
+  // uncheckedValue?: any;
+  // validateOnInput?: boolean;
+  // validateOnChange?: boolean;
+  // validateOnBlur?: boolean;
+  // validateOnModelUpdate?: boolean;
   modelValue?: any;
-  validateOnMount?: boolean;
-  standalone?: boolean;
-  modelModifiers?: any;
+  // validateOnMount?: boolean;
+  // standalone?: boolean;
+  // modelModifiers?: any;
   rules?: RuleExpression<any>;
   'onUpdate:modelValue'?: (e: any) => unknown;
-  keepValue?: boolean;
+  // keepValue?: boolean;
   props?: ElementProps;
   error?: string;
   
@@ -76,10 +77,24 @@ export interface FieldSchema {
   // omitting group because it will contain many fields, so I couldn't merge the settings
   settings?: Omit<FormSchemaSettings, 'field' | 'group'>;
   initialValue?: any;
+  
+  // condition
 }
 
 export interface FieldSchemaParsed extends FieldSchema {
-  cumulativeSettings?: FormSchemaSettings;
+}
+
+export interface FieldBinding {
+  name: string;
+  label: string;
+  id: string;
+  type?: string;
+  value?: any;
+  error?: string;
+  modelValue?: any;
+  class?: any;
+  checked?: boolean;
+  options?: boolean;
 }
 
 export interface GroupSchema {
@@ -89,12 +104,12 @@ export interface GroupSchema {
   order?: number;
   props?: ElementProps & {},
   
-  settings?: Omit<FormSchemaSettings, 'group'>;
+  settings?: FormSchemaSettings;
 }
 
 interface GroupSchemaParsed extends GroupSchema, Omit<FormSchemaSettings, 'group'> {
   fields: FieldSchemaParsed[];
-  cumulativeSettings?: FormSchemaSettings;
+  avoid?: boolean;
 }
 
 export interface FormSchema {

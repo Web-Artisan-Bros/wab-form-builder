@@ -1,21 +1,16 @@
 <script setup lang="ts">
-import WabFormBuilder from '@/components/WabFormBuilder'
-import type { FieldSchema, FormSchema, GroupSchema } from '@/@types/FormBuilder'
+import type { FieldBinding, FieldSchema, FieldSchemaParsed, FormSchema, GroupSchema } from '@/@types/FormBuilder'
 import { array, string } from 'yup'
-import usePropsMerger from '@/composables/propsMerger'
-import DemoForm from '@/components/DemoForm.vue'
+import WabFormBuilder from '@/components/WabFormBuilder.vue'
 import { ref } from 'vue'
-import { useSchemaParser } from '@/composables/schemaParser'
-
-const propsMerger = usePropsMerger()
 
 const initialValues = ref({
   // name: 'John Doe',
-  email: 'mario.rossi@gmail.com',
+  // email: 'mario.rossi@gmail.com',
   city: 'berlin',
   gender: 'm',
   password: 'asda',
-  drink: 'wine'
+  drink: 'wine',
   // choose: ['sure', 'mb']
 })
 
@@ -29,7 +24,7 @@ const formSchema = ref<FormSchema>({
       }
     },
     col: {
-      as: 'span',
+      as: 'div',
       // avoid: true,
       props: {
         class: 'md:col-6 col-12 wab-col'
@@ -39,15 +34,14 @@ const formSchema = ref<FormSchema>({
       as: 'div',
       // avoid: true,
       props: {
-        class: 'flex flex-column gap-2 wab-wrapper'
+        class: 'flex flex-wrapper gap-2 wab-wrapper'
       }
     },
     field: {
       as: 'input',
       // validateOnInput: false,
       props: {
-        class: (ctx) => ['wab-field', (ctx.error ? 'border-red-500' : 'border-gray-500')]
-        // class: 'wab-field-from-global'
+        _class: (ctx: FieldBinding) => ['wab-field', (ctx.error ? 'border-red-500' : 'border-gray-500')]
       }
     },
     label: {
@@ -66,11 +60,10 @@ const formSchema = ref<FormSchema>({
       }
     }
   },
-  groups: [
+  /*groups: [
     {
       name: '_default',
       legend: 'Default',
-      // as: 'aaaa',
       order: 0,
       props: {
         class: 'default-group'
@@ -90,7 +83,7 @@ const formSchema = ref<FormSchema>({
         }
       }
     }
-    /* {
+    /!* {
        name: 'row1',
        legend: 'Dati base',
        as: 'div',
@@ -98,8 +91,8 @@ const formSchema = ref<FormSchema>({
          class: 'mb-3'
        }
 
-     }*/
-  ],
+     }*!/
+  ],*/
   fields: [
     {
       name: 'drink',
@@ -152,6 +145,11 @@ const formSchema = ref<FormSchema>({
       label: 'I\'m agree',
       props: {
         type: 'checkbox'
+      },
+      settings: {
+        label: {
+          position: 'after'
+        }
       }
     },
     {
@@ -166,13 +164,10 @@ const formSchema = ref<FormSchema>({
         class: 'name-field'
       },
       settings: {
-        col: {
+        /*col: {
           as: 'column'
           // avoid: true
-        },
-        label: {
-          position: 'after'
-        }
+        },*/
       },
       modelValue: 'Michele'
     },
@@ -235,14 +230,13 @@ const formSchema = ref<FormSchema>({
   initialValues: initialValues.value,
 })
 
-const schemaParser = useSchemaParser(formSchema.value)
 
 // window.formSchema = formSchema
 
 function addGroup () {
   const field: FieldSchema = {
-    name: 'row' + ((schemaParser.groups.value.length) + 1),
-    group: 'row' + ((schemaParser.groups.value.length) + 1),
+    name: 'row' + ((formSchema.value.groups?.length) + '1'),
+    group: 'row' + ((formSchema.value.groups?.length) + '1'),
     as: 'input',
     rules: string().required(),
     props: {
@@ -251,7 +245,7 @@ function addGroup () {
   }
 
   const group = {
-    name: 'row' + ((schemaParser.groups.value.length) + 1),
+    name: 'row' + ((formSchema.value.groups?.length) + '1'),
     legend: 'Group ' + field.group
   }
 
@@ -277,8 +271,8 @@ function onValue (values: any) {
   console.log('values', values)
 }
 
-function onSubmit () {
-  console.log('submit')
+function onSubmit (values: any) {
+  console.log('submit', values)
 }
 </script>
 
@@ -287,21 +281,19 @@ function onSubmit () {
   <button @click="updateLegend">UpdateLegend</button>
 
   <div class="m-6">
-    <DemoForm :schema="formSchema">
-      <template #field_name="item">
-        <select v-bind="item">
-          <option></option>
-          <option value="Antonio">Antonio</option>
-        </select>
+    <WabFormBuilder :schema="formSchema" :onSubmit="onSubmit">
+      <template #field_name="item:FieldBinding">
+        <label :for="item.id">{{ item.label }}</label>
+        <InputText v-bind="item" :class="{'border-red-500': item.error}"/>
+        <span v-if="item.error">{{ item.error }}</span>
       </template>
-    </DemoForm>
-    <!--    <WabFormBuilder :schema="formSchema" :onError="onError"
-                        :on-value="onValue">
-          <template #bottom>
-            <button type="reset">Reset</button>
-            <button>Invia</button>
-          </template>
-        </WabFormBuilder>-->
+
+      <template #bottom>
+        <button type="reset">Reset</button>
+        <button type="submit">Invia</button>
+        bottom template
+      </template>
+    </WabFormBuilder>
   </div>
 
 </template>
