@@ -1,10 +1,20 @@
 import type { RuleExpression } from 'vee-validate'
 import { bool } from 'yup'
 
+export type IfCondition = (ctx: FieldBinding, formValues: Record<string, any>) => boolean;
+
+export interface ComputedClassContext {
+  error?: string,
+  value: string,
+  fieldName: string,
+  formValues: Record<string, any>
+}
+
 export interface ElementProps {
   [key: string]: any;
   
-  class?: ((field: FieldSchemaParsed) => any) | string | string[] | Record<string, boolean>;
+  _class?: (ctx: ComputedClassContext) => any;
+  class?: string | string[] | Record<string, boolean>;
   style?: any;
 }
 
@@ -78,7 +88,8 @@ export interface FieldSchema {
   settings?: Omit<FormSchemaSettings, 'field' | 'group'>;
   initialValue?: any;
   
-  // condition
+  // conditions
+  if?: IfCondition
 }
 
 export interface FieldSchemaParsed extends FieldSchema {
@@ -105,6 +116,8 @@ export interface GroupSchema {
   props?: ElementProps & {},
   
   settings?: FormSchemaSettings;
+  
+  if?: (formValues: Record<string, any>, errors: Record<string, string>) => boolean;
 }
 
 interface GroupSchemaParsed extends GroupSchema, Omit<FormSchemaSettings, 'group'> {

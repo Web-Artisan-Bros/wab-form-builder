@@ -7,9 +7,9 @@ import { distinct, merge, omit } from '@/composables/utilities'
 export function useFormSchema (_schema: FormSchema) {
   const defaultSettings: FormSchemaSettings = {
     field: {
-      validateOnBlur: true,
-      validateOnChange: true,
-      validateOnInput: true,
+      // validateOnBlur: true,
+      // validateOnChange: true,
+      // validateOnInput: true,
       optionLabel: 'label',
       optionValue: 'value'
       // uncheckedValue: false,
@@ -49,7 +49,6 @@ export function useFormSchema (_schema: FormSchema) {
   })
   
   const fields = computed<FieldSchema[]>(() => {
-    console.log(errors.value)
     return schema.value?.fields.map(field => {
       const groupName = field.group || '_default'
       const group: GroupSchema | undefined = schema.value?.groups?.find(group => group.name === groupName)

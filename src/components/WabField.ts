@@ -32,7 +32,7 @@ export default defineComponent({
   },
   setup (props, { emit, slots }) {
     const formFields = inject('formFields') as Ref<FieldSchemaParsed[]>
-    const formValues = inject('formValues') as any
+    const formValues = inject('formValues') as Ref<Record<string, any>>
     const modelValue = ref<any>(unref(props.modelValue))
     const error = ref(props.error)
     const field = toRef(props, 'field')
@@ -50,6 +50,8 @@ export default defineComponent({
       
       return toReturn.join('-')
     })
+    
+    const mustShow = computed(() => props.field.if?.(fieldBinding.value, formValues.value) ?? true)
     
     /**
      * Count how many fields with the same name exists in the form schema.
@@ -118,7 +120,9 @@ export default defineComponent({
           toReturn.value = modelValue.value
         } else {
           toReturn.value = field.props?.value
-          toReturn.checked = modelValue.value instanceof Array ? modelValue.value.includes(field.props?.value) : toReturn.value === modelValue.value
+          toReturn.checked = modelValue.value instanceof Array
+            ? modelValue.value.includes(field.props?.value)
+            : toReturn.value ? toReturn.value === modelValue.value : modelValue.value
         }
         
         if (field.as === 'select' && field?.props?.options) {
@@ -313,9 +317,9 @@ export default defineComponent({
      * Watch for changes in the "modelValue" prop so that can update the local modelValue variable.
      */
     watch(() => props.modelValue, (value: any) => {
-      if (modelValue.value === value) {
+      /*if (modelValue.value === value) {
         return
-      }
+      }*/
       
       modelValue.value = value
     })
@@ -359,7 +363,7 @@ export default defineComponent({
       // addColumn
       toReturn = getColumn(toReturn)
       
-      return toReturn
+      return mustShow.value ? toReturn : null
     }
   },
   emits: ['update:modelValue', 'update:error']

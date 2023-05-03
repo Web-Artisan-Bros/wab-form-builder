@@ -25,6 +25,7 @@ const errors = toRef(formSchema, 'errors')
 
 provide('formSchema', formSchema.schema)
 provide('formFields', formSchema.fields)
+provide('formErrors', formSchema.errors)
 provide('formValues', modelValue)
 
 function onSubmit () {

@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import type { FieldBinding, FieldSchema, FieldSchemaParsed, FormSchema, GroupSchema } from '@/@types/FormBuilder'
+import type {
+  ComputedClassContext,
+  FieldBinding,
+  FieldSchema,
+  FieldSchemaParsed,
+  FormSchema,
+  GroupSchema
+} from '@/@types/FormBuilder'
 import { array, string } from 'yup'
 import WabFormBuilder from '@/components/WabFormBuilder.vue'
 import { ref } from 'vue'
@@ -10,7 +17,7 @@ const initialValues = ref({
   city: 'berlin',
   gender: 'm',
   password: 'asda',
-  drink: 'wine',
+  drink: 'beer',
   // choose: ['sure', 'mb']
 })
 
@@ -41,7 +48,7 @@ const formSchema = ref<FormSchema>({
       as: 'input',
       // validateOnInput: false,
       props: {
-        _class: (ctx: FieldBinding) => ['wab-field', (ctx.error ? 'border-red-500' : 'border-gray-500')]
+        _class: (ctx) => ['wab-field', (ctx.error ? 'border-red-500' : 'border-gray-500')]
       }
     },
     label: {
@@ -60,7 +67,7 @@ const formSchema = ref<FormSchema>({
       }
     }
   },
-  /*groups: [
+  groups: [
     {
       name: '_default',
       legend: 'Default',
@@ -82,17 +89,17 @@ const formSchema = ref<FormSchema>({
           }
         }
       }
+    },
+    {
+      name: 'row1',
+      legend: 'Dati base',
+      as: 'div',
+      props: {
+        class: 'mb-3'
+      },
+      if: (formValues) => formValues.approve,
     }
-    /!* {
-       name: 'row1',
-       legend: 'Dati base',
-       as: 'div',
-       props: {
-         class: 'mb-3'
-       }
-
-     }*!/
-  ],*/
+  ],
   fields: [
     {
       name: 'drink',
@@ -146,6 +153,7 @@ const formSchema = ref<FormSchema>({
       props: {
         type: 'checkbox'
       },
+      if: (ctx: FieldBinding, formValues) => formValues.drink === 'beer',
       settings: {
         label: {
           position: 'after'
