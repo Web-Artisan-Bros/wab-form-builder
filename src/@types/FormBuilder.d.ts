@@ -51,7 +51,10 @@ export interface FieldSchema {
   name: string;
   as: string | Record<string, any>;
   options?: any[];
+  optionLabel?: string,
+  optionValue?: string,
   bails?: boolean;
+  checkedValue?: any;
   uncheckedValue?: any;
   validateOnInput?: boolean;
   validateOnChange?: boolean;
@@ -61,7 +64,7 @@ export interface FieldSchema {
   validateOnMount?: boolean;
   standalone?: boolean;
   modelModifiers?: any;
-  rules: RuleExpression<unknown>;
+  rules?: RuleExpression<any>;
   'onUpdate:modelValue'?: (e: any) => unknown;
   keepValue?: boolean;
   props?: ElementProps;
@@ -72,6 +75,7 @@ export interface FieldSchema {
   
   // omitting group because it will contain many fields, so I couldn't merge the settings
   settings?: Omit<FormSchemaSettings, 'field' | 'group'>;
+  initialValue?: any;
 }
 
 export interface FieldSchemaParsed extends FieldSchema {

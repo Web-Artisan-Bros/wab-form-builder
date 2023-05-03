@@ -3,15 +3,20 @@ import WabFormBuilder from '@/components/WabFormBuilder'
 import type { FieldSchema, FormSchema, GroupSchema } from '@/@types/FormBuilder'
 import { array, string } from 'yup'
 import usePropsMerger from '@/composables/propsMerger'
+import DemoForm from '@/components/DemoForm.vue'
 import { ref } from 'vue'
 import { useSchemaParser } from '@/composables/schemaParser'
 
 const propsMerger = usePropsMerger()
 
 const initialValues = ref({
-  name: 'John Doe',
+  // name: 'John Doe',
   email: 'mario.rossi@gmail.com',
-  city: "berlin"
+  city: 'berlin',
+  gender: 'm',
+  password: 'asda',
+  drink: 'wine'
+  // choose: ['sure', 'mb']
 })
 
 const formSchema = ref<FormSchema>({
@@ -39,8 +44,9 @@ const formSchema = ref<FormSchema>({
     },
     field: {
       as: 'input',
+      // validateOnInput: false,
       props: {
-        class: ({ error }) => ['wab-field', (error ? 'border-red-500' : 'border-gray-500')]
+        class: (ctx) => ['wab-field', (ctx.error ? 'border-red-500' : 'border-gray-500')]
         // class: 'wab-field-from-global'
       }
     },
@@ -96,6 +102,59 @@ const formSchema = ref<FormSchema>({
   ],
   fields: [
     {
+      name: 'drink',
+      as: 'input',
+      label: 'Water',
+      props: {
+        value: 'water',
+        type: 'radio'
+      }
+    },
+    {
+      name: 'drink',
+      as: 'input',
+      label: 'Wine',
+      props: {
+        value: 'wine',
+        type: 'radio'
+      }
+    },
+    {
+      name: 'drink',
+      as: 'input',
+      label: 'Beer',
+      props: {
+        value: 'beer',
+        type: 'radio'
+      }
+    },
+    {
+      name: 'choose',
+      as: 'input',
+      label: 'I\'m agree',
+      props: {
+        type: 'checkbox',
+        value: 'sure'
+      }
+    },
+    {
+      name: 'choose',
+      as: 'input',
+      label: 'Maybe not',
+      props: {
+        type: 'checkbox',
+        value: 'mb'
+      }
+    },
+    {
+      name: 'approve',
+      as: 'input',
+      label: 'I\'m agree',
+      props: {
+        type: 'checkbox'
+      }
+    },
+    {
       name: 'name',
       as: 'input',
       group: 'row1',
@@ -114,7 +173,8 @@ const formSchema = ref<FormSchema>({
         label: {
           position: 'after'
         }
-      }
+      },
+      modelValue: 'Michele'
     },
     {
       label: 'Your Email',
@@ -143,25 +203,27 @@ const formSchema = ref<FormSchema>({
       name: 'gender',
       as: 'select',
       rules: string().required(),
-      options: [
-        { value: '', label: '-' },
-        { value: 'm', label: 'Maschio' },
-        { value: 'f', label: 'Femmina' },
-        { value: 'o', label: 'Altro' }
-      ],
       props: {
-        placeholder: 'Come ti definisci?'
+        placeholder: 'Come ti definisci?',
+        options: [
+          { value: '', label: '-' },
+          { value: 'm', label: 'Maschio' },
+          { value: 'f', label: 'Femmina' },
+          { value: 'o', label: 'Altro' }
+        ]
       }
     },
     {
       label: 'Città',
       name: 'city',
       as: 'Dropdown',
+      rules: string().required(),
       props: {
         placeholder: 'Scegli una città?',
         optionLabel: 'label',
         optionValue: 'value',
         options: [
+          { label: '-', value: '' },
           { label: 'Berlin', value: 'berlin' },
           { label: 'Frankfurt', value: 'frankfurt' },
           { label: 'Hamburg', value: 'hamburg' },
@@ -173,14 +235,9 @@ const formSchema = ref<FormSchema>({
   initialValues: initialValues.value,
 })
 
-
 const schemaParser = useSchemaParser(formSchema.value)
 
 // window.formSchema = formSchema
-
-function onErrors (errors: any) {
-  // console.log(errors)
-}
 
 function addGroup () {
   const field: FieldSchema = {
@@ -211,14 +268,40 @@ function updateLegend () {
 
   formSchema.value.groups[lastIndex].legend = 'Updated'
 }
+
+function onError (errors: any) {
+  console.log('errors', errors)
+}
+
+function onValue (values: any) {
+  console.log('values', values)
+}
+
+function onSubmit () {
+  console.log('submit')
+}
 </script>
 
 <template>
-
   <button @click="addGroup">Add field</button>
   <button @click="updateLegend">UpdateLegend</button>
+
   <div class="m-6">
-    <WabFormBuilder :schema="formSchema">ùù</WabFormBuilder>
+    <DemoForm :schema="formSchema">
+      <template #field_name="item">
+        <select v-bind="item">
+          <option></option>
+          <option value="Antonio">Antonio</option>
+        </select>
+      </template>
+    </DemoForm>
+    <!--    <WabFormBuilder :schema="formSchema" :onError="onError"
+                        :on-value="onValue">
+          <template #bottom>
+            <button type="reset">Reset</button>
+            <button>Invia</button>
+          </template>
+        </WabFormBuilder>-->
   </div>
 
 </template>

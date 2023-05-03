@@ -7,7 +7,11 @@ export function useSchemaParser (_schema: FormSchema) {
     field: {
       validateOnBlur: true,
       validateOnChange: true,
-      validateOnInput: true
+      validateOnInput: true,
+      optionLabel: 'label',
+      optionValue: 'value'
+      // uncheckedValue: false,
+      // checkedValue: true,
     }
   }
   const schema = ref<FormSchema>()
@@ -45,9 +49,9 @@ export function useSchemaParser (_schema: FormSchema) {
       const group: GroupSchema | undefined = schema.value?.groups?.find(group => group.name === groupName)
       
       return {
-        modelValue: initialValues.value[field.name],
         ...propsMerger.merge(field, schema.value?.settings?.field, group?.settings?.field, field),
-        settings: propsMerger.omit(propsMerger.merge(field, schema.value?.settings, group?.settings, field?.settings), ['field'])
+        settings: propsMerger.omit(propsMerger.merge(field, schema.value?.settings, group?.settings, field?.settings), ['field']),
+        initialValue: initialValues.value[field.name]
       }
     }) ?? []
   })

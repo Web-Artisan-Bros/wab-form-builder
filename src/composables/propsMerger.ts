@@ -21,12 +21,22 @@ export default function usePropsMerger () {
       const keys = Object.keys(prop)
       
       keys.forEach(key => {
-        if (prop[key] instanceof Function) {
-          cloneProp[key] = prop[key](ctx ?? {})
+        const fnName = '_' + key + 'Fn'
+        
+        if (key.startsWith('_')) {
           return
+        }
+        
+        if (cloneProp[fnName]) {
+          cloneProp[key] = prop[fnName](ctx ?? {})
+          
+        } else if (prop[key] instanceof Function) {
+          cloneProp[fnName] = prop[key]
+          cloneProp[key] = prop[key](ctx ?? {})
+          
         } else if (prop[key]?.constructor.name === 'Object') {
           cloneProp[key] = merge(ctx, toReturn[key], prop[key])
-          return
+          
         }
       })
       

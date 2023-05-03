@@ -1,9 +1,7 @@
 import type { FieldSchemaParsed, GroupSchema } from '@/@types/FormBuilder'
 import { defineComponent, h, ref, useSlots, watch } from 'vue'
 import { WabWrapper } from '@/classes/WabWrapper'
-import WabFieldComponent from '@/components/WabField'
-import { Field } from 'vee-validate'
-import type { CreateComponentPublicInstance } from '@vue/runtime-core'
+import WabFieldComponent from '@/components/WabField.vue'
 
 export class WabField {
   private componentInstance!: any
@@ -20,7 +18,9 @@ export class WabField {
   
   get label () {
     if (this.field.label) {
-      return h('label', this.field.label)
+      return h('label', {
+        for: this.id
+      }, this.field.label)
     }
   }
   
@@ -40,13 +40,13 @@ export class WabField {
     watch(field, (value) => {
       console.log('field mounted: ' + this.field.name)
     })
-    
+
     // @ts-ignore
     return h(WabFieldComponent, {
       field: this.field as any,
       tag: this.tag,
       id: this.id,
-      modelValue: this.field.modelValue,
+      modelValue: this.field.modelValue ?? this.field.initialValue
     }, () => [])
   }
   
