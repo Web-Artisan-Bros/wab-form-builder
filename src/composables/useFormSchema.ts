@@ -20,6 +20,8 @@ export function useFormSchema (_schema: FormSchema) {
   const modelValue = ref<any>({})
   const modelValidationSchema = ref<ObjectSchema<any>>({} as any)
   const errors = ref<Record<any, string>>({})
+  const fieldsToHide = ref<string[]>([])
+  const groupsFoHide = ref<string[]>([])
   
   const initialValues = computed(() => schema.value?.initialValues ?? {})
   
@@ -49,7 +51,7 @@ export function useFormSchema (_schema: FormSchema) {
   })
   
   const fields = computed<FieldSchema[]>(() => {
-    return schema.value?.fields.map(field => {
+    const toReturn = schema.value?.fields.map(field => {
       const groupName = field.group || '_default'
       const group: GroupSchema | undefined = schema.value?.groups?.find(group => group.name === groupName)
       
@@ -67,6 +69,8 @@ export function useFormSchema (_schema: FormSchema) {
         initialValue: initialValues.value[field.name]
       }
     }) ?? []
+    
+    return toReturn//.filter(field => !fieldsToHide.value.includes(field.name))
   })
   
   const parsedSchema = computed<GroupSchemaParsed[]>(() => {
@@ -77,6 +81,8 @@ export function useFormSchema (_schema: FormSchema) {
       }
     })
   })
+  
+  
   
   /**
    * Create the initial model value based on the fields schema
@@ -97,7 +103,9 @@ export function useFormSchema (_schema: FormSchema) {
    * Based on the fields schema, create a yup validation schema
    */
   function createValidationSchema (): ObjectSchema<any> {
-    return yup.object(fields.value.reduce((acc, field) => {
+    const fieldsToUse = fields.value.filter(field => !fieldsToHide.value.includes(field.name))
+    
+    const schema = fieldsToUse.reduce((acc, field) => {
       const name: string = field.name
       const validationSchema = field.rules
       
@@ -106,7 +114,9 @@ export function useFormSchema (_schema: FormSchema) {
       }
       
       return acc
-    }, {} as Record<any, any>))
+    }, {} as Record<any, any>)
+    
+    return yup.object().shape(schema)
   }
   
   /**
@@ -141,6 +151,35 @@ export function useFormSchema (_schema: FormSchema) {
     errors.value = {}
   }
   
+  function updateFieldVisibility (visibile: boolean, fieldName: string) {
+    if (visibile) {
+      // remove field from array of hidden fields
+      fieldsToHide.value = fieldsToHide.value.filter(field => field !== fieldName)
+      
+      // add field to model
+      modelValue.value[fieldName] = initialValues.value[fieldName]
+    } else if (!fieldsToHide.value.includes(fieldName)) {
+      // add field to array of hidden fields
+      fieldsToHide.value.push(fieldName)
+      
+      // remove field errors
+      storeValidation('', fieldName)
+      
+      // remove field from model
+      delete modelValue.value[fieldName]
+    }
+    
+    modelValidationSchema.value = createValidationSchema()
+  }
+  
+  function updateGroupVisibility (visibile: boolean, groupName: string) {
+    if (visibile) {
+      groupsFoHide.value = groupsFoHide.value.filter(group => group !== groupName)
+    } else if (!groupsFoHide.value.includes(groupName)) {
+      groupsFoHide.value.push(groupName)
+    }
+  }
+  
   watch(() => fields.value, () => {
     modelValue.value = createInitialModelValue()
     modelValidationSchema.value = createValidationSchema()
@@ -154,9 +193,13 @@ export function useFormSchema (_schema: FormSchema) {
     initialValues,
     modelValue,
     modelValidationSchema,
+    fieldsToHide,
+    groupsFoHide,
     validate,
     resetValidation,
     errors,
-    onUpdateError: storeValidation
+    onUpdateError: storeValidation,
+    onUpdateFieldVisibility: updateFieldVisibility,
+    onUpdateGroupVisibility: updateGroupVisibility
   }
 }

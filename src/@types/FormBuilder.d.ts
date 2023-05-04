@@ -1,7 +1,7 @@
 import type { RuleExpression } from 'vee-validate'
 import { bool } from 'yup'
 
-export type IfCondition = (ctx: FieldBinding, formValues: Record<string, any>) => boolean;
+export type IfCondition = (ctx: FieldBinding, formValues: Record<string, any>, hiddenFields: string[]) => boolean;
 
 export interface ComputedClassContext {
   error?: string,
@@ -117,7 +117,7 @@ export interface GroupSchema {
   
   settings?: FormSchemaSettings;
   
-  if?: (formValues: Record<string, any>, errors: Record<string, string>) => boolean;
+  if?: (formValues: Record<string, any>, errors: Record<string, string>, hiddenFields: string[]) => boolean;
 }
 
 interface GroupSchemaParsed extends GroupSchema, Omit<FormSchemaSettings, 'group'> {

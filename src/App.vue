@@ -7,7 +7,7 @@ import type {
   FormSchema,
   GroupSchema
 } from '@/@types/FormBuilder'
-import { array, string } from 'yup'
+import { array, string, setLocale } from 'yup'
 import WabFormBuilder from '@/components/WabFormBuilder.vue'
 import { ref } from 'vue'
 
@@ -18,7 +18,27 @@ const initialValues = ref({
   gender: 'm',
   password: 'asda',
   drink: 'beer',
+  approve: false
   // choose: ['sure', 'mb']
+})
+
+// must be called before schema definition
+setLocale({
+  // use constant translation keys for messages without values
+  mixed: {
+    default: 'field_invalid',
+    required: (ctx) => {
+      return "Si e poi?"//{ key: 'field_required', values: { min: ctx.min } }
+    },
+  },
+  string: {
+    email: 'field_invalid_email'
+  },
+  // use functions to generate an error object that includes the value from the schema
+  number: {
+    min: ({ min }) => ({ key: 'field_too_short', values: { min } }),
+    max: ({ max }) => ({ key: 'field_too_big', values: { max } })
+  }
 })
 
 const formSchema = ref<FormSchema>({
@@ -97,7 +117,7 @@ const formSchema = ref<FormSchema>({
       props: {
         class: 'mb-3'
       },
-      if: (formValues) => formValues.approve,
+      if: (formValues, errors, hiddenFields) => !hiddenFields.includes('approve') && formValues.approve
     }
   ],
   fields: [
@@ -238,7 +258,6 @@ const formSchema = ref<FormSchema>({
   initialValues: initialValues.value,
 })
 
-
 // window.formSchema = formSchema
 
 function addGroup () {
@@ -293,7 +312,7 @@ function onSubmit (values: any) {
       <template #field_name="item:FieldBinding">
         <label :for="item.id">{{ item.label }}</label>
         <InputText v-bind="item" :class="{'border-red-500': item.error}"/>
-        <span v-if="item.error">{{ item.error }}</span>
+        <span v-if="item.error" class="text-red-500">{{ item.error }}</span>
       </template>
 
       <template #bottom>

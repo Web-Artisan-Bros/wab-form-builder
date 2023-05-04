@@ -27,6 +27,8 @@ provide('formSchema', formSchema.schema)
 provide('formFields', formSchema.fields)
 provide('formErrors', formSchema.errors)
 provide('formValues', modelValue)
+provide('hiddenFields', formSchema.fieldsToHide)
+provide('hiddenGroups', formSchema.groupsFoHide)
 
 function onSubmit () {
   const formValues = formSchema.validate()
@@ -64,12 +66,14 @@ function getSlotName (field: FieldSchema) {
 
     <WabGroup v-for="group in formSchema.schema.value" :key="group.name"
               :group="group"
+              @update:visibility="formSchema.onUpdateGroupVisibility"
     >
       <WabField v-for="(field, i) in group.fields" :key="field.name + '_' + i"
                 :field="field"
                 :error="errors[field.name]"
                 v-model="modelValue[field.name]"
-                @update:error="formSchema.onUpdateError">
+                @update:error="formSchema.onUpdateError"
+                @update:visibility="formSchema.onUpdateFieldVisibility">
 
         <template v-slot:field="data" v-if="slots[getSlotName(field)]">
           <slot :name="getSlotName(field)"

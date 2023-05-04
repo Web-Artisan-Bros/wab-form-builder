@@ -9,7 +9,8 @@ import {
   resolveDynamicComponent, shallowRef,
   toRef,
   unref,
-  watch
+  watch,
+  defineExpose
 } from 'vue'
 import type { ObjectSchema } from 'yup'
 import type { FieldBinding, FieldSchema, FieldSchemaParsed, FormSchema } from '@/@types/FormBuilder'
@@ -30,9 +31,13 @@ export default defineComponent({
       type: String
     }
   },
+  emits: ['update:modelValue', 'update:error', 'update:visibility'],
+  expose: ['field', 'modelValue', 'error', 'visibility'],
   setup (props, { emit, slots }) {
     const formFields = inject('formFields') as Ref<FieldSchemaParsed[]>
     const formValues = inject('formValues') as Ref<Record<string, any>>
+    const hiddenFields = inject('hiddenFields') as Ref<string[]>
+    const hiddenGroups = inject('hiddenGroups') as Ref<string[]>
     const modelValue = ref<any>(unref(props.modelValue))
     const error = ref(props.error)
     const field = toRef(props, 'field')
@@ -51,7 +56,13 @@ export default defineComponent({
       return toReturn.join('-')
     })
     
-    const mustShow = computed(() => props.field.if?.(fieldBinding.value, formValues.value) ?? true)
+    const mustShow = computed(() => {
+      if (hiddenGroups.value.includes(field.value.group ?? '_default')) {
+        return false
+      }
+      
+      return props.field.if?.(fieldBinding.value, formValues.value, hiddenFields.value) ?? true
+    })
     
     /**
      * Count how many fields with the same name exists in the form schema.
@@ -317,12 +328,12 @@ export default defineComponent({
      * Watch for changes in the "modelValue" prop so that can update the local modelValue variable.
      */
     watch(() => props.modelValue, (value: any) => {
-      /*if (modelValue.value === value) {
-        return
-      }*/
-      
       modelValue.value = value
     })
+    
+    watch(() => mustShow.value, (value) => {
+      emit('update:visibility', value, fieldName.value)
+    }, { immediate: true })
     
     return () => {
       let toReturn = [h(tag.value, fieldBinding.value, childs.value ?? [])]
@@ -366,6 +377,5 @@ export default defineComponent({
       return mustShow.value ? toReturn : null
     }
   },
-  emits: ['update:modelValue', 'update:error']
 })
 
