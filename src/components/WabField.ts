@@ -14,7 +14,7 @@ import {
 } from 'vue'
 import type { ObjectSchema } from 'yup'
 import type { FieldBinding, FieldSchema, FieldSchemaParsed, FormSchema } from '@/@types/FormBuilder'
-import { isHTMLTag, isHTMLEvent, isHTMLCheckableInput, fieldCount, omit } from '@/composables/utilities'
+import { isHTMLTag, isHTMLEvent, isHTMLCheckableInput, fieldCount, omit, isFunction } from '@/composables/utilities'
 import { WabWrapper } from '@/classes/WabWrapper'
 
 export default defineComponent({
@@ -112,13 +112,25 @@ export default defineComponent({
           onChange: handleInput
         })
       
+      const computedFieldContext = {
+        error: error.value,
+        value: modelValue.value,
+        fieldName: field.name,
+        formValues: formValues.value,
+        fieldProps: toReturn,
+        props: toReturn
+      }
+      
       if (field.props?._class) {
-        toReturn.class = field.props._class({
-          error: error.value,
-          value: modelValue.value,
-          fieldName: field.name,
-          formValues: formValues.value
-        })
+        toReturn.class = field.props._class(computedFieldContext)
+      }
+      
+      if (isFunction(field.props?.disabled)) {
+        toReturn.disabled = (field.props?.disabled as CallableFunction)(computedFieldContext)
+      }
+      
+      if (isFunction(field.props?.readonly)) {
+        toReturn.readonly = (field.props?.readonly as CallableFunction)(computedFieldContext)
       }
       
       /*
@@ -178,10 +190,28 @@ export default defineComponent({
      * Create a vNode for the label if necessary
      */
     const labelEl = computed(() => {
-      if (field.value.label) {
-        return h('label', {
-          for: id.value
-        }, field.value.label)
+      const labelSettings = field.value.settings?.label
+      
+      if (!labelSettings?.avoid) {
+        const labelProps = Object.assign({},
+          omit(labelSettings?.props, ['_class']),
+          {
+            for: id.value
+          })
+        
+        // merge label classes
+        if (labelSettings?.props?._class) {
+          labelProps.class = labelSettings?.props._class({
+            error: error.value,
+            value: modelValue.value,
+            fieldName: field.value.name,
+            formValues: formValues.value,
+            props: labelProps,
+            fieldProps: fieldBinding.value
+          })
+        }
+        
+        return h('label', labelProps, field.value.label)
       }
     })
     
@@ -300,6 +330,21 @@ export default defineComponent({
         return _field
       }
       
+      const settings = { ...field.value.settings?.wrapper } ?? {}
+      
+      if (settings?.props?._class) {
+        settings.props.class = settings?.props._class({
+          error: error.value,
+          value: modelValue.value,
+          fieldName: field.value.name,
+          formValues: formValues.value,
+          props: settings.props,
+          fieldProps: fieldBinding.value
+        })
+        
+        delete settings?.props?._class
+      }
+      
       return new WabWrapper(field.value.settings?.wrapper ?? {}, _field).template
     }
     
@@ -313,7 +358,22 @@ export default defineComponent({
         return _field
       }
       
-      return new WabWrapper(field.value.settings?.col ?? {}, _field).template
+      const settings = { ...field.value.settings?.col } ?? {}
+      
+      if (settings?.props?._class) {
+        settings.props.class = settings?.props._class({
+          error: error.value,
+          value: modelValue.value,
+          fieldName: field.value.name,
+          formValues: formValues.value,
+          props: settings.props,
+          fieldProps: fieldBinding.value
+        })
+        
+        delete settings?.props?._class
+      }
+      
+      return new WabWrapper(settings, _field).template
     }
     
     /**

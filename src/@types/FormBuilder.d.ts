@@ -2,17 +2,19 @@ import type { RuleExpression } from 'vee-validate'
 
 export type IfCondition = (ctx: FieldBinding, formValues: Record<string, any>, hiddenFields: string[]) => boolean;
 
-export interface ComputedClassContext {
+export interface ComputedFieldContext {
   error?: string,
   value: string,
   fieldName: string,
-  formValues: Record<string, any>
+  formValues: Record<string, any>,
+  props: any,
+  fieldProps: any,
 }
 
 export interface ElementProps {
   [key: string]: any;
   
-  _class?: (ctx: ComputedClassContext) => any;
+  _class?: (ctx: ComputedFieldContext) => any;
   class?: string | string[] | Record<string, boolean>;
   style?: any;
 }
@@ -77,7 +79,10 @@ export interface FieldSchema {
   rules?: RuleExpression<any>;
   'onUpdate:modelValue'?: (e: any) => unknown;
   // keepValue?: boolean;
-  props?: ElementProps;
+  props?: ElementProps & {
+    readonly: boolean | ((ctx: ComputedFieldContext) => boolean);
+    disabled: boolean | ((ctx: ComputedFieldContext) => boolean);
+  };
   error?: string;
   
   // name of the group this input belongs
@@ -105,6 +110,8 @@ export interface FieldBinding {
   class?: any;
   checked?: boolean;
   options?: boolean;
+  disabled?: boolean;
+  readonly?: boolean;
 }
 
 export interface GroupSchema {

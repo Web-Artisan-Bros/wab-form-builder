@@ -1,5 +1,5 @@
 import WabFormBuilder from './components/WabFormBuilder.vue'
-import type { FormSchema } from './@types/FormBuilder'
+import type { FormSchema, ComputedFieldContext } from './@types/FormBuilder'
 
 export { WabFormBuilder }
-export type { FormSchema }
+export type { FormSchema, ComputedFieldContext }

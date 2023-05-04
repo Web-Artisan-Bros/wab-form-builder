@@ -29,6 +29,14 @@ export function isArray (value: any) {
   return Array.isArray(value)
 }
 
+export function isFunction (value: any) {
+  if (!value) {
+    return false
+  }
+  
+  return value instanceof Function
+}
+
 export function fieldCount (name: string, fields: FieldSchema[]) {
   return fields.filter((field) => field.name === name).length
 }

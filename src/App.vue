@@ -8,7 +8,7 @@ import type {
   GroupSchema
 } from '@/@types/FormBuilder'
 import { array, string, setLocale } from 'yup'
-import WabFormBuilder from '@/components/WabFormBuilder.vue'
+import { WabFormBuilder } from '@/index'
 import { ref } from 'vue'
 
 const initialValues = ref({
@@ -128,6 +128,14 @@ const formSchema = ref<FormSchema>({
       props: {
         value: 'water',
         type: 'radio'
+      },
+      settings: {
+        label: {
+          props: {
+            _class: () => ['text-500', 'font-bold']
+          }
+          // avoid: true
+        }
       }
     },
     {
@@ -322,12 +330,12 @@ function onSubmit (values: any) {
   <button @click="updateLegend">UpdateLegend</button>
 
   <div class="m-6">
-    <WabFormBuilder :schema="formSchema2" :onSubmit="onSubmit">
-<!--      <template #field_name="item:FieldBinding">
-        <label :for="item.id">{{ item.label }}</label>
-        <InputText v-bind="item" :class="{'border-red-500': item.error}"/>
-        <span v-if="item.error" class="text-red-500">{{ item.error }}</span>
-      </template>-->
+    <WabFormBuilder :schema="formSchema" :onSubmit="onSubmit">
+      <!--      <template #field_name="item:FieldBinding">
+              <label :for="item.id">{{ item.label }}</label>
+              <InputText v-bind="item" :class="{'border-red-500': item.error}"/>
+              <span v-if="item.error" class="text-red-500">{{ item.error }}</span>
+            </template>-->
 
       <template #bottom>
         <button type="reset">Reset</button>
