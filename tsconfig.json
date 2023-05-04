@@ -2,15 +2,15 @@
   "extends": "@vue/tsconfig/tsconfig.web.json",
   "include": [
     "env.d.ts",
-    "index.d.ts",
     "src/**/*",
     "src/**/*.ts",
     "src/**/*.vue"
   ],
   "compilerOptions": {
     "baseUrl": ".",
-    "jsx": "preserve",
     "preserveValueImports": false,
+    "importsNotUsedAsValues": "preserve",
+    "isolatedModules": false,
     "lib": [
       "ESNext",
       "DOM"

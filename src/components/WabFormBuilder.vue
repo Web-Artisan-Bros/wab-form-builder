@@ -45,7 +45,7 @@ function onSubmit () {
 }
 
 function onReset () {
-  formSchema.fields.value.forEach((field) => {
+  formSchema.fields.value.forEach((field: FieldSchema) => {
     modelValue.value[field.name] = field.initialValue
     field.modelValue = field.initialValue
   })
@@ -64,29 +64,32 @@ function getSlotName (field: FieldSchema) {
         @submit.prevent="onSubmit"
         @reset.prevent="onReset">
 
-    <WabGroup v-for="group in formSchema.schema.value" :key="group.name"
-              :group="group"
-              @update:visibility="formSchema.onUpdateGroupVisibility"
-    >
-      <WabField v-for="(field, i) in group.fields" :key="field.name + '_' + i"
-                :field="field"
-                :error="errors[field.name]"
-                v-model="modelValue[field.name]"
-                @update:error="formSchema.onUpdateError"
-                @update:visibility="formSchema.onUpdateFieldVisibility">
+    <template v-if="!schema">Ooops, seems you've forgot to pass the schema.</template>
 
-        <template v-slot:field="data" v-if="slots[getSlotName(field)]">
-          <slot :name="getSlotName(field)"
-                v-bind="data as {ciao:string}">
-          </slot>
-        </template>
+    <template v-else>
+      <WabGroup v-for="group in formSchema.schema.value" :key="group.name"
+                :group="group"
+                @update:visibility="formSchema.onUpdateGroupVisibility"
+      >
+        <WabField v-for="(field, i) in group.fields" :key="field.name + '_' + i"
+                  :field="field"
+                  :error="errors[field.name]"
+                  v-model="modelValue[field.name]"
+                  @update:error="formSchema.onUpdateError"
+                  @update:visibility="formSchema.onUpdateFieldVisibility">
 
-        <slot name="bottom"></slot>
-      </WabField>
-    </WabGroup>
+          <template v-slot:field="data" v-if="slots[getSlotName(field)]">
+            <slot :name="getSlotName(field)"
+                  v-bind="data as {ciao:string}">
+            </slot>
+          </template>
 
+          <slot name="bottom"></slot>
+        </WabField>
+      </WabGroup>
 
-    <slot name="bottom"></slot>
+      <slot name="bottom"></slot>
+    </template>
   </form>
 </template>
 

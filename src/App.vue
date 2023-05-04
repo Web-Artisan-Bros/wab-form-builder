@@ -258,6 +258,20 @@ const formSchema = ref<FormSchema>({
   initialValues: initialValues.value,
 })
 
+const formSchema2 = ref<FormSchema>({
+  fields: [
+    {
+      name: 'firstName',
+      as: 'input',
+      label: "First Name"
+    },
+    {
+      name: 'lastName',
+      as: 'input',
+      label: "Last Name"
+    }
+  ]
+})
 // window.formSchema = formSchema
 
 function addGroup () {
@@ -308,12 +322,12 @@ function onSubmit (values: any) {
   <button @click="updateLegend">UpdateLegend</button>
 
   <div class="m-6">
-    <WabFormBuilder :schema="formSchema" :onSubmit="onSubmit">
-      <template #field_name="item:FieldBinding">
+    <WabFormBuilder :schema="formSchema2" :onSubmit="onSubmit">
+<!--      <template #field_name="item:FieldBinding">
         <label :for="item.id">{{ item.label }}</label>
         <InputText v-bind="item" :class="{'border-red-500': item.error}"/>
         <span v-if="item.error" class="text-red-500">{{ item.error }}</span>
-      </template>
+      </template>-->
 
       <template #bottom>
         <button type="reset">Reset</button>

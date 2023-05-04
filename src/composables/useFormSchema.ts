@@ -1,10 +1,28 @@
-import { computed, ref, toRef, watch } from 'vue'
+import { computed, ComputedRef, Ref, ref, toRef, watch } from 'vue'
 import type { FieldSchema, FormSchema, FormSchemaSettings, GroupSchema, GroupSchemaParsed } from '@/@types/FormBuilder'
 import type { ObjectSchema } from 'yup'
 import * as yup from 'yup'
 import { distinct, merge, omit } from '@/composables/utilities'
 
-export function useFormSchema (_schema: FormSchema) {
+export interface UseFormSchema {
+  schema: ComputedRef<GroupSchemaParsed[]>;
+  originalSchema: Ref<FormSchema>;
+  groups: ComputedRef<GroupSchema[]>;
+  fields: ComputedRef<FieldSchema[]>;
+  modelValue: any;
+  initialValues: any,
+  modelValidationSchema: any,
+  fieldsToHide: Ref<string[]>,
+  groupsFoHide: Ref<string[]>,
+  errors: Ref<Record<string, string>>,
+  validate: () => Promise<boolean>,
+  resetValidation: () => void,
+  onUpdateError: (error: string, fieldName: string) => void,
+  onUpdateFieldVisibility: (visible: boolean, field: string) => void,
+  onUpdateGroupVisibility: (visible: boolean, group: string) => void,
+}
+
+export function useFormSchema (_schema: FormSchema): UseFormSchema {
   const defaultSettings: FormSchemaSettings = {
     field: {
       // validateOnBlur: true,
@@ -81,7 +99,6 @@ export function useFormSchema (_schema: FormSchema) {
       }
     })
   })
-  
   
   
   /**
@@ -195,9 +212,9 @@ export function useFormSchema (_schema: FormSchema) {
     modelValidationSchema,
     fieldsToHide,
     groupsFoHide,
+    errors,
     validate,
     resetValidation,
-    errors,
     onUpdateError: storeValidation,
     onUpdateFieldVisibility: updateFieldVisibility,
     onUpdateGroupVisibility: updateGroupVisibility

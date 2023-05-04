@@ -6,14 +6,26 @@ export function isHTMLEvent (e: any) {
 }
 
 export function isHTMLTag (tag: any) {
+  if (!tag) {
+    return false
+  }
+  
   return ['input', 'select', 'textarea'].includes(tag)
 }
 
 export function isHTMLCheckableInput (el: any) {
+  if (!el) {
+    return false
+  }
+  
   return ['checkbox', 'radio'].includes(el.type)
 }
 
 export function isArray (value: any) {
+  if (!value) {
+    return false
+  }
+  
   return Array.isArray(value)
 }
 
@@ -60,6 +72,10 @@ export function merge (ctx: any, ...props: any[]): any {
 export function pick (obj: any, keys: string[]) {
   const newObj: any = {}
   
+  if (!keys || !obj) {
+    return newObj
+  }
+  
   keys.forEach(key => {
     newObj[key] = obj[key]
   })
@@ -69,6 +85,10 @@ export function pick (obj: any, keys: string[]) {
 
 export function omit (obj: any, keys: string[]) {
   const newObj: any = {}
+  
+  if (!obj) {
+    return newObj
+  }
   
   Object.keys(obj).forEach(key => {
     if (!keys.includes(key)) {
