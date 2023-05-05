@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type {
-  ComputedClassContext,
+  ComputedFieldContext,
   FieldBinding,
   FieldSchema,
   FieldSchemaParsed,

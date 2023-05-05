@@ -80,8 +80,8 @@ export interface FieldSchema {
   'onUpdate:modelValue'?: (e: any) => unknown;
   // keepValue?: boolean;
   props?: ElementProps & {
-    readonly: boolean | ((ctx: ComputedFieldContext) => boolean);
-    disabled: boolean | ((ctx: ComputedFieldContext) => boolean);
+    readonly?: boolean | ((ctx: ComputedFieldContext) => boolean);
+    disabled?: boolean | ((ctx: ComputedFieldContext) => boolean);
   };
   error?: string;
   
